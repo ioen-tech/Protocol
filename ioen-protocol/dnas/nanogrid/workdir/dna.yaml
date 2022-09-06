@@ -1,0 +1,18 @@
+---
+manifest_version: "1"
+name: nanogrid
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  origin_time: 2022-09-06T00:35:29.553Z
+  zomes:
+    - name: settings_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/settings_integrity.wasm
+
+coordinator:
+  zomes:
+    - name: settings
+      bundled: ../../../target/wasm32-unknown-unknown/release/settings.wasm
+      dependencies:
+        - name: settings_integrity
+

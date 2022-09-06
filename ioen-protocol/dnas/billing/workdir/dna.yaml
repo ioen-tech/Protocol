@@ -1,0 +1,18 @@
+---
+manifest_version: "1"
+name: billing
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  origin_time: 2022-09-06T00:35:29.555Z
+  zomes:
+    - name: charges_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/charges_integrity.wasm
+
+coordinator:
+  zomes:
+    - name: charges
+      bundled: ../../../target/wasm32-unknown-unknown/release/charges.wasm
+      dependencies:
+        - name: charges_integrity
+

@@ -1,0 +1,18 @@
+use hdi::prelude::*;
+
+
+
+
+
+
+
+#[hdk_entry_helper]
+#[derive(Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EcoGridTransaction {
+  pub supply_time: f64,
+  pub consumer_nano_grid: AgentPubKey,
+  pub amount_supplied: f32, 
+  pub supplier_nano_grid: AgentPubKey,
+  pub tariff: f32,
+}

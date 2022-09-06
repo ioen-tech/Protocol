@@ -1,0 +1,39 @@
+---
+manifest_version: "1"
+name: ioen-protocol
+description: ~
+roles:
+
+  - id: nanogrid
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/nanogrid/workdir/nanogrid.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0
+
+  - id: energy
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/energy/workdir/energy.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0
+
+  - id: billing
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dnas/billing/workdir/billing.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0
+
