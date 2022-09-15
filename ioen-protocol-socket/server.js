@@ -24,6 +24,7 @@ const ecoGridTransactionsToProcess = [];
 const retailTransactionsToProcess = [];
 const signalCb = (signal) => {
     // impl...
+
     resolve()
   }
 async function connectToHolochain() {
@@ -67,7 +68,7 @@ async function createNewAgent(socket, installed_app_id, callback) {
         transactionsCellId
     }
     console.log(protocolAppInfo);
-    socket.emit('AppBundleInstalled', protocolAppInfo);
+    socket.emit('AppInfo', protocolAppInfo);
     callback(agent_key, protocolAppInfo)
 }
 
@@ -94,11 +95,36 @@ function createNewNanoGrid(socket, nanoGrid) {
     }
 };
 
+async function getSupplyAgreements(nanoGrid) {
+    let supplyAgreements = [
+        {
+            supplierAgentPubKey: 'agent 1',
+            tariffIoenFuel: 1,
+            transactionEnergyLimit: 1
+        },
+        {
+            supplierAgentPubKey: 'agent 2',
+            tariffIoenFuel: 1,
+            transactionEnergyLimit: 1
+        }
+    ];
+    return supplyAgreements;
+};
+
+async function getRequiredEnergyFromSupplyAgreements(nanoGrid, requiredEnergy, supplyAgreements, callback) {
+    supplyAgreements.forEach(supplyAgreement => {
+        // Somehow use Holochain remote call or signal to work out how much energy
+        // await the supplier in the agreement's response to see if we need to ask next supplier in list
+        // ecoGridTransactionsToProcess.push(transaction);
+        // if requiredEnergy - amount from supplier > 0 execute next agreement
+        // else requiredEnergy = 0;
+        // break;
+    });
+    callback(requiredEnergy);
+};
+
 let ecoGridTransactionInProgress = false;
-async function createEcoGridTransaction() {
-    if (ecoGridTransactionInProgress == true) return;
-    const payload = ecoGridTransactionsToProcess.shift();
-    if (payload == undefined) return;
+async function createEcoGridTransaction(payload) {
     const start = new Date();
     try {
         ecoGridTransactionInProgress = true;
@@ -122,14 +148,10 @@ async function createEcoGridTransaction() {
         ecoGridTransactionInProgress = false;
         console.error(error);
     }
-}
-
+};
 
 let retailTransactionInProgress = false;
-async function createRetailTransaction() {
-    if (retailTransactionInProgress == true) return;
-    const payload = retailTransactionsToProcess.shift();
-    if (payload == undefined) return;
+async function createRetailTransaction(payload) {
     const start = new Date();
     try {
         retailTransactionInProgress = true;
@@ -154,8 +176,22 @@ async function createRetailTransaction() {
     }
 }
 
-setInterval(createRetailTransaction, 10);
-setInterval(createEcoGridTransaction, 10);
+function processEcoGridTransactions() {
+    if (ecoGridTransactionInProgress == true) return;
+    const payload = ecoGridTransactionsToProcess.shift();
+    if (payload == undefined) return;
+    createEcoGridTransaction(payload);
+};
+
+function processRetailTransactions() {
+    if (retailTransactionInProgress == true) return;
+    const payload = retailTransactionsToProcess.shift();
+    if (payload == undefined) return;
+    createRetailTransaction(payload);
+}
+
+setInterval(processRetailTransactions, 10);
+setInterval(processEcoGridTransactions, 10);
 
 io.on('connection', (socket) => {
     var cnt = 0;
@@ -171,11 +207,36 @@ io.on('connection', (socket) => {
         createNewNanoGrid(socket, nanoGrid);
     });
 
-    socket.on('CreateEcoGridTransaction', (transaction) => {
+    socket.on('GetSupplyAgreements', (nanoGrid) => {        
+        getSupplyAgreements(nanoGrid, (supplyAgreements) => {
+            socket.emit('SupplyAgreementsRetrieved', supplyAgreements);
+        });
+    });
+
+    socket.on('GetAppInfo', (nanoGrid) => {        
+    //     hcClient = socket
+    // socket
+    //   .appInfo({
+    //     installed_app_id: nanoGrid.nanoGridName,
+    //   })
+    //   .then(appInfo => {
+    //     console.log(appInfo)
+    //     profileCellId = appInfo.cell_data.find(data => data.role_id === 'ioen_profiles').cell_id
+    //     energyMonitorCellId = appInfo.cell_data.find(data => data.role_id === 'ioen_energy_monitor').cell_id
+    // socket.emit('AppInfo', protocolAppInfo);
+    });
+
+    socket.on('GetRequiredEnergyFromSupplyAgreements', (nanoGrid, requiredEnergy, supplyAgreements) => {        
+        getRequiredEnergyFromSupplyAgreements(nanoGrid, requiredEnergy, supplyAgreements, (requiredEnergy) => {
+            socket.emit('SupplyAgreementsExecuted', requiredEnergy);
+        });
+    });
+
+    socket.on('AddEcoGridTransactionToProcessingList', (transaction) => {
         ecoGridTransactionsToProcess.push(transaction);
     });
 
-    socket.on('CreateRetailTransaction', (transaction) => {
+    socket.on('AddRetailTransactionToProcessingList', (transaction) => {
         retailTransactionsToProcess.push(transaction);
     });
 

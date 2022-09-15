@@ -1,0 +1,27 @@
+{
+  "name": "consumer-nanogrid",
+  "version": "1.0.0",
+  "description": "IOEN Protocol NanoGrid with no power generation, consumer only",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ioen-tech/Protocol.git"
+  },
+  "keywords": [
+    "IOEN",
+    "Protocol"
+  ],
+  "author": "Philip Beadle <philip.beadle@live.com.au>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ioen-tech/Protocol/issues"
+  },
+  "homepage": "https://github.com/ioen-tech/Protocol#readme",
+  "dependencies": {
+    "byte-base64": "^1.1.0",
+    "socket.io-client": "4.5.1"
+  }
+}

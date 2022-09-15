@@ -5,16 +5,18 @@ const socket = io("http://localhost:8080", {
     id: "Tesla Gateway"
   }
 });
-const agentPubKeyFileName = '/Users/philipbeadle/IOEN/Protocol/tesla-gateway-client/agentPubKey2.txt'
-const url = 'https://192.168.0.185/api/meters/aggregates'
-const port = process.argv[2]
-const email = 'philip.beadle@live.com.au'
-const password = 'IoenRocks!'
+
+const agentPubKeyFileName = path.resolve(__dirname, 'agentPubKey.txt');
+const url = 'https://192.168.0.185/api/meters/aggregates';
+const port = process.argv[2];
+const email = 'philip.beadle@live.com.au';
+const password = 'IoenRocks!';
 let agentPubKey = '';
 let protocolAppInfo = '';
-const axios = require('axios')
-const https = require('https')
-let token = ''
+let supplyAgreements = [];
+const axios = require('axios');
+const https = require('https');
+let token = '';
 axios
   .post('https://192.168.0.185/api/login/Basic', {
     email,
@@ -40,7 +42,7 @@ let availableEnergy = 0;
 function calculatePowerRequirements() {
   if (availableEnergy > 0) {
     // Any left over energy is used to charge the local community battery
-  }
+  };
   axios
     .get('https://192.168.0.185/api/meters/aggregates', 
     {
@@ -58,9 +60,15 @@ function calculatePowerRequirements() {
   
       // Tesla Gateway value for site.instant_power is the amount either being bought from the retailer or sold as Feed In Tariff
       // hence its the amount of available energy that can be sold to other nano grids via a supply agreement.
-      availableEnergy = res.data.site.instant_power;
+      availableEnergy = res.data.site.instant_power * -1;
+      if (availableEnergy < 0) {
+        let requiredEnergy = availableEnergy;
+        // Executed Supply Agreements to buy required energy
+        socket.emit('GetRequiredEnergyFromSupplyAgreements', agentPubKey,  supplyAgreements);
+      }
     });
-}
+};
+setInterval(calculatePowerRequirements, 60000);
 
 let isCreatingNewNanoGrid = false;
 socket.on("connect", () => {
@@ -82,18 +90,29 @@ socket.on("connect", () => {
     socket.emit('CreateNewNanoGrid', nanogrid)
   }
 
-  socket.on('AgentPubKeyGenerated', agent => {
-    agentPubKey = agent.agentPubKey;
-    console.log('AgentPubKeyGenerated ' + JSON.stringify(agent));
-    console.log('AgentPubKey ' + agentPubKey);
-    try {
-        fs.writeFileSync(agentPubKeyFileName, agentPubKey, {encoding:'utf8',flag:'w'});
-    } catch (err) {
-        console.log('err' + err)
-    }
-    isCreatingNewNanoGrid = false;
-  });
+  if (agentPubKey != '') {
+    socket.emit('GetSupplyAgreements', nanogrid)
+  }
 });
-    
+socket.on('AgentPubKeyGenerated', agent => {
+  agentPubKey = agent.agentPubKey;
+  console.log('AgentPubKeyGenerated ' + JSON.stringify(agent));
+  console.log('AgentPubKey ' + agentPubKey);
+  try {
+      fs.writeFileSync(agentPubKeyFileName, agentPubKey, {encoding:'utf8',flag:'w'});
+      socket.emit('GetSupplyAgreements', nanogrid)
+  } catch (err) {
+      console.log('err' + err)
+  }
+  isCreatingNewNanoGrid = false;
+});
+socket.on('SupplyAgreementsRetrieved', supplyAgreementArray => {
+  supplyAgreements = supplyAgreementArray;
+});
+socket.on('SupplyAgreementsExecuted', requiredEnergy => {
+  if (requiredEnergy > 0) {
+    // Buy from Retailer
+  }
+});
 
 // fs.writeFileSync('/tmp/test-sync', 'Hey there!');
