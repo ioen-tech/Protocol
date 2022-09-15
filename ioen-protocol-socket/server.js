@@ -11,21 +11,25 @@ const io = new Server(8080, { //8124 is the local port we are binding the pingpo
     serveClient: true,		//This is not required for communication with our asset but we enable it for a web based testing tool. You can leave it enabled for example to connect your webbased service to the same server (this hosts a js file).
     allowEIO3: false,			//This is only for testing purpose. We do make sure, that we do not accidentially work with compat mode.
     cors: {
-      origin: "*"				//Allow connection from any referrer (most likely this is what you will want for game clients - for WebGL the domain of your sebsite MIGHT also work)
+        origin: "*"				//Allow connection from any referrer (most likely this is what you will want for game clients - for WebGL the domain of your sebsite MIGHT also work)
     }
-  });
+});
   
-console.log('Starting Socket.IO pingpong server');
+console.log('Starting IOEN Protocol Socket');
 const TIMEOUT = 30000;
 let adminClient = {};
 let appClient = {};
 let adminPort = 65000;
 const ecoGridTransactionsToProcess = [];
 const retailTransactionsToProcess = [];
+const signalCb = (signal) => {
+    // impl...
+    resolve()
+  }
 async function connectToHolochain() {
     adminClient = await AdminWebsocket.connect(`ws://localhost:${adminPort}`, TIMEOUT);
     const appPort = await adminClient.attachAppInterface({ port: 0 });
-    appClient = await AppWebsocket.connect(`ws://localhost:${appPort.port}`, TIMEOUT);
+    appClient = await AppWebsocket.connect(`ws://localhost:${appPort.port}`, TIMEOUT, signalCb);
 }
 
 connectToHolochain();
@@ -120,7 +124,6 @@ async function createEcoGridTransaction() {
     }
 }
 
-setInterval(createEcoGridTransaction, 10);
 
 let retailTransactionInProgress = false;
 async function createRetailTransaction() {
@@ -152,10 +155,11 @@ async function createRetailTransaction() {
 }
 
 setInterval(createRetailTransaction, 10);
+setInterval(createEcoGridTransaction, 10);
 
 io.on('connection', (socket) => {
     var cnt = 0;
-    console.log('[' + (new Date()).toUTCString() + '] IOEN World connecting with NanoGridName ' + socket.handshake.auth.id);	
+    console.log('[' + (new Date()).toUTCString() + '] IOEN Protocol connecting with NanoGridName ' + socket.handshake.auth.id);	
 
     socket.on('CreateNewRetailer', () => {        
         createNewAgent(socket, 'Redgrid Energy' , (agent_key, protocolAppInfo) => {
