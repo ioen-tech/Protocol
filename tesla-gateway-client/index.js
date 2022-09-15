@@ -1,11 +1,17 @@
 const io = require("socket.io-client");
 const fs = require('fs');
+const path = require('path');
 const socket = io("http://localhost:8080", {
   auth: {
     id: "Tesla Gateway"
   }
 });
-
+const { exec } = require('child_process')
+exec('curl ip-adresim.app', function(error, stdout, stderr){
+  if(error)
+      return;
+  console.log('your ip is :'+ stdout);
+})
 const agentPubKeyFileName = path.resolve(__dirname, 'agentPubKey.txt');
 const url = 'https://192.168.0.185/api/meters/aggregates';
 const port = process.argv[2];
@@ -105,6 +111,9 @@ socket.on('AgentPubKeyGenerated', agent => {
       console.log('err' + err)
   }
   isCreatingNewNanoGrid = false;
+});
+socket.on('AppBundleInstalled', appInfo => {
+  protocolAppInfo = appInfo;
 });
 socket.on('SupplyAgreementsRetrieved', supplyAgreementArray => {
   supplyAgreements = supplyAgreementArray;

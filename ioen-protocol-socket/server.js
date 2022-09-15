@@ -1,7 +1,7 @@
 import { AppWebsocket, AdminWebsocket } from '@holochain/client';
 import { Server } from "socket.io";
 import * as base64 from "byte-base64";
-
+const { exec } = require('child_process');
 const io = new Server(8080, { //8124 is the local port we are binding the pingpong server to
     pingInterval: 30005,		//An interval how often a ping is sent
     pingTimeout: 5000,		//The time a client has to respont to a ping before it is desired dead
