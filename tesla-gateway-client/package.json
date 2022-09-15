@@ -1,0 +1,16 @@
+{
+  "name": "tesla-gateway-client",
+  "version": "1.0.0",
+  "description": "IOEN Protocol client for Tesla Gateway NanoGrids",
+  "main": "index.js",
+  "scripts": {
+    "start:tesla:client": "node index.js"
+  },
+  "author": "Philip Beadle <philip.beadle@live.com.au>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "byte-base64": "^1.1.0",
+    "socket.io-client": "4.5.1"
+  }
+}
