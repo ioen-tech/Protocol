@@ -1,0 +1,15 @@
+{
+  "name": "ioen.world.protocol.socket",
+  "version": "1.0.0",
+  "description": "Socket.io server that wraps Holochain for easy access from Unity",
+  "main": "server.js",
+  "scripts": {
+    "start:protocol-socket": "node server.js"
+  },
+  "type": "module",
+  "author": "Philip Beadle <philt3r@ioen.tech>",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "^4.5.1"
+  }
+}
