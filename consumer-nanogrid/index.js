@@ -1,89 +1,131 @@
-const io = require("socket.io-client");
-const fs = require('fs');
-const socket = io("http://localhost:8080", {
+import {
+  connectToHolochain,
+  createNewAgent,
+  createNewNanoGrid,
+  createEcoGridTransaction,
+  createRetailTransaction } from '../ioen-protocol-client/index.js';
+import { io } from 'socket.io-client';
+const socket = io("http://localhost:5858", {
   auth: {
-    id: "Consumer Household"
+    id: '57 Alice St Mount Waverley 3149'
   }
 });
-
+import * as path from 'path';
+import * as fs from 'fs';
+const calculatePowerRequirementsInterval = 10000;
+const nanoGridName = '57 Alice St Mount Waverley';
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const agentPubKeyFileName = path.resolve(__dirname, 'agentPubKey.txt');
+const protocolAppInfoFileName = path.resolve(__dirname, 'protocolAppInfo.json');
 let agentPubKey = '';
-let protocolAppInfo = '';
-let supplyAgreements = [];
-const retailerAgentPubKey = '';
-function calculatePowerRequirements() {
-  // Use CSIRO data
-  const requiredEnergy = 0.5;
-  // Executed Supply Agreements to buy required energy
-  socket.emit('GetRequiredEnergyFromSupplyAgreements', agentPubKey, requiredEnergy,  supplyAgreements);
+let appInfo = {};
+
+async function connect() {
+  await connectToHolochain();
+  try {
+    agentPubKey = fs.readFileSync(agentPubKeyFileName, {encoding:'utf8'});
+    appInfo = JSON.parse(fs.readFileSync(protocolAppInfoFileName, {encoding:'utf8'}));
+    console.log('agentPubkey ' + agentPubKey);
+    setInterval(calculatePowerRequirements, calculatePowerRequirementsInterval);
+  } catch (err) {
+    // console.log(err)
+  }
+  if (agentPubKey == '' || appInfo == '') {
+    console.log('First time setup')
+    createNewAgent(nanoGridName, (agent, protocolAppInfo) => {
+      fs.writeFileSync(agentPubKeyFileName, agent.agentPubKey, {encoding:'utf8',flag:'w'});
+      fs.writeFileSync(protocolAppInfoFileName, JSON.stringify(protocolAppInfo), {encoding:'utf8',flag:'w'});
+      agentPubKey = agent.agentPubKey;
+      appInfo = protocolAppInfo;
+      const nanoGrid = {
+        nanoGridName,
+        numberOfSolarPanels: 32,
+        storageCapacity: 13
+      };
+      createNewNanoGrid(nanoGrid, agent.agentPubKey, protocolAppInfo, (actionHash) => {
+        console.log('NanoGridCreated', actionHash);
+        setInterval(calculatePowerRequirements, calculatePowerRequirementsInterval);
+      });
+    });
+  };
+  console.log(appInfo);
 };
 
-setInterval(() => {
-  calculatePowerRequirements();
-}, 30000);
+connect();
+let supplyAgreements = [];
+const retailerAgentPubKey = '';
 
-let isCreatingNewNanoGrid = false;
+// Connect to IOEN Protocol to get supplyAgreements
+
+async function getSupplyAgreements(calllback) {
+    let supplyAgreements = [
+        {
+            supplierAgentPubKey: 'hCAkIxhs/JzKIWQFY4t4Ixi79tUlnA0ByxBCBAwIp1tm2+tPgcvf',
+            tariffIoenFuel: 1,
+            transactionEnergyLimit: 1
+        }
+    ];
+    // remote_signal each supplier to get their public IP
+    // create socket for each supplier
+    // const socket = io("public address of supplier socket server", {
+    //   auth: {
+    //     id: '57 Alice St Mount Waverley 3149',
+    //     consumerAgentPubKey: agentPubKey
+    //   }
+    // });
+    calllback(supplyAgreements);
+};
+
+getSupplyAgreements((result) => {
+  supplyAgreements = result;
+});
+
+
+
+function calculatePowerRequirements() {
+  console.log('calculatePowerRequirements');
+
+  // Use CSIRO data
+  let requiredEnergy = 500;
+  // Executed Supply Agreements to buy required energy
+  supplyAgreements.forEach(supplyAgreement => {
+    console.log('requiredEnergy ' + requiredEnergy);
+    if (requiredEnergy > 0) {
+      const supplyTime = new Date().getTime() * 10000 + 621355968000000000;
+      socket.emit('GetRequiredEnergyFromSupplyAgreement', requiredEnergy, (amountSupplied, re) => {
+        // requiredEnergy = re;
+        console.log(re + ' W needed after buying ' + amountSupplied + ' W from ' + supplyAgreement.supplierAgentPubKey);
+        const ecoGridTransaction = {
+          supplyTime,
+          consumerNanoGrid: agentPubKey,
+          amountSupplied,
+          supplierNanoGrid: supplyAgreement.supplierAgentPubKey,
+          tariff: supplyAgreement.tariffIoenFuel,
+          transactionsCellId: appInfo.transactionsCellId
+        }
+        createEcoGridTransaction(ecoGridTransaction, () => {});
+      });
+    }
+  });
+  // if (requiredEnergy > 0) {
+  //   const supplyTime = new Date().getTime() * 10000 + 621355968000000000;
+  //   const retailTransaction = {
+  //     supplyTime,
+  //     consumerNanoGrid: agentPubKey,
+  //     amountSupplied: requiredEnergy,
+  //     retailerAgentPubKey,
+  //     tariff: 1,
+  //     transactionsCellId: appInfo.transactionsCellId
+  //   }
+  //   // createRetailTransaction(retailTransaction, () => {});
+  //   // retailerSocket.emit('GetRequiredEnergyFromRetailer', requiredEnergy, (requiredEnergy) =>{
+  //     console.log('Bought ' + requiredEnergy + ' W from retailer');
+  //   // });
+  // }
+};
+
 socket.on("connect", () => {
   console.log(socket.id);
-  try {
-    agentPubKey = fs.readFileSync(agentPubKeyFileName);
-    console.log('agentPubkey ' + agentPubKey)
-  } catch (err) {
-    console.log(err)
-  }
-  if (agentPubKey == '' && isCreatingNewNanoGrid == false) {
-    console.log('first time agent')
-    const nanogrid = {
-        nanoGridName: 'neighbour house 1',
-        numberOfSolarPanels: 0,
-        storageCapacity: 0
-    };
-    isCreatingNewNanoGrid = true;
-    socket.emit('CreateNewNanoGrid', nanogrid)
-  } else {
-    // get installed app info here
-  }
-
-  if (agentPubKey != '') {
-    socket.emit('GetSupplyAgreements', nanogrid)
-  }
-});
-socket.on('AgentPubKeyGenerated', agent => {
-  agentPubKey = agent.agentPubKey;
-  console.log('AgentPubKeyGenerated ' + JSON.stringify(agent));
-  console.log('AgentPubKey ' + agentPubKey);
-  try {
-      fs.writeFileSync(agentPubKeyFileName, agentPubKey, {encoding:'utf8',flag:'w'});
-      socket.emit('GetSupplyAgreements', nanogrid)
-  } catch (err) {
-      console.log('err' + err)
-  }
-  isCreatingNewNanoGrid = false;
-});
-
-socket.on('AppInfo', appInfo => {
-  protocolAppInfo = appInfo;
-});
-
-socket.on('SupplyAgreementsRetrieved', supplyAgreementArray => {
-  supplyAgreements = supplyAgreementArray;
-});
-
-socket.on('SupplyAgreementsExecuted', (requiredEnergy) => {
-  if (requiredEnergy > 0) {
-    // Buy from Retailer
-    // Get tariff from retailer
-    const tariff = 1; // await get from holochain.
-    const transaction = {
-      supplyTime: '',
-      consumerNanoGrid: agentPubKey,
-      amountSupplied: requiredEnergy,
-      retailerAgentPubKey,
-      tariff,
-      transactionsCellId: protocolAppInfo.transactionsCellId
-    }
-    socket.emit('AddRetailTransactionToProcessingList', transaction);
-  }
 });
 
 

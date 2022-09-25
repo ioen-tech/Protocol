@@ -25,39 +25,6 @@ const retailTransactionsToProcess = [];
 
 connectToHolochain();
 
-
-// async function getSupplyAgreements(nanoGrid) {
-//     let supplyAgreements = [
-//         {
-//             supplierAgentPubKey: 'agent 1',
-//             tariffIoenFuel: 1,
-//             transactionEnergyLimit: 1
-//         },
-//         {
-//             supplierAgentPubKey: 'agent 2',
-//             tariffIoenFuel: 1,
-//             transactionEnergyLimit: 1
-//         }
-//     ];
-//     return supplyAgreements;
-// };
-
-// async function getRequiredEnergyFromSupplyAgreements(nanoGrid, requiredEnergy, supplyAgreements, callback) {
-//     supplyAgreements.forEach(supplyAgreement => {
-//         // Somehow use Holochain remote call or signal to work out how much energy
-//         // await the supplier in the agreement's response to see if we need to ask next supplier in list
-//         // ecoGridTransactionsToProcess.push(transaction);
-//         // if requiredEnergy - amount from supplier > 0 execute next agreement
-//         // else requiredEnergy = 0;
-//         // break;
-//     });
-//     callback(requiredEnergy);
-// };
-
-// 
-
-
-
 let ecoGridTransactionInProgress = false;
 function processEcoGridTransactions() {
     if (ecoGridTransactionInProgress == true) return;

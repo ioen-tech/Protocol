@@ -26,7 +26,8 @@ export const createNewAgent = async(installed_app_id, callback) => {
     console.log(agent_key);
     const base64AgentPubKey = base64.bytesToBase64(agent_key);
     const agent = {
-      agentPubKey: base64AgentPubKey
+      agentPubKey: base64AgentPubKey,
+      installedAppId: installed_app_id
     }
     console.log(agent);
     const installPath = path.resolve(__dirname, 'ioen-protocol.happ');

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "IOEN Protocol client for Tesla Gateway NanoGrids",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start:tesla:client": "node index.js"
   },
@@ -11,6 +12,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "byte-base64": "^1.1.0",
+    "socket.io": "^4.5.1",
     "socket.io-client": "4.5.1"
   }
 }
