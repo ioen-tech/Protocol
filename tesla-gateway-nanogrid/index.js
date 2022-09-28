@@ -118,8 +118,8 @@ function calculatePowerRequirements() {
   
       // Tesla Gateway value for site.instant_power is the amount either being bought from the retailer or sold as Feed In Tariff
       // hence its the amount of available energy that can be sold to other nano grids via a supply agreement.
-      // availableEnergy = res.data.site.instant_power * -1;
-      availableEnergy = 8000;
+      availableEnergy = res.data.site.instant_power * -1;
+      // availableEnergy = 8000;
       console.log(availableEnergy + ' W from solar panels');
       if (availableEnergy < 0) {
         let requiredEnergy = availableEnergy;
