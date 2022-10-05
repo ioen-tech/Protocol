@@ -14,4 +14,6 @@
 - Gary's keen as so a few days later Phil is at Gary's house teaching him how to do a physical install of a NanoGrid.
 - When Gary shows the club leadership a few different models he built and how he can now show simulator data or real time data they agree to promote the Donald Football Club EcoGrid to the rest of the club through official channels.
 - Gary then does the physical install of the Donald Football Club NanoGrid teaching the process to Claire & Marie who between them went on to sign up most of the club.
+- The club decided to include funding and scheduling the installation of solar & batteries in the value flows of the EcoGrid to improve the EcoGrid.
 - Gary has a BBQ!
+- Luke from Esoteric is at the BBQ ....

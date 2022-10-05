@@ -20,6 +20,17 @@ export const connectToHolochain = async() => {
   appClient = await AppWebsocket.connect(`ws://localhost:${appPort.port}`, TIMEOUT, signalCb);
 }
 
+Date.prototype.yyyymmdd = function() {
+  var mm = this.getMonth() + 1; // getMonth() is zero-based
+  var dd = this.getDate();
+
+  return [this.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('');
+};
+
+
 export const createNewAgent = async(installed_app_id, callback) => {
   try {
     const agent_key = await adminClient.generateAgentPubKey();
@@ -39,26 +50,52 @@ export const createNewAgent = async(installed_app_id, callback) => {
     });
     console.log(installedApp);
     await adminClient.enableApp({ installed_app_id });
-    const nano_grid_settings_cell_id = installedApp.cell_data.find(data => data.role_id === 'nanogrid').cell_id;
-    const nanoGridSettingsCellId = base64.bytesToBase64(nano_grid_settings_cell_id[0]);
-    const transactions_cell_id = installedApp.cell_data.find(data => data.role_id === 'energy').cell_id;
-    const transactionsCellId = base64.bytesToBase64(transactions_cell_id[0]);
-    const billing_cell_id = installedApp.cell_data.find(data => data.role_id === 'billing').cell_id;
-    const billingCellId = base64.bytesToBase64(billing_cell_id[0]);
-    const ioenFuelCellId = "ioenFuelCellId";
-    const protocolAppInfo = {
-      installedAppId: installed_app_id,
-      nanoGridSettingsCellId,
-      ioenFuelCellId,
-      billingCellId,
-      transactionsCellId
-    }
-    console.log(protocolAppInfo);
-    callback(agent, protocolAppInfo);
+    const info = await appClient.appInfo({ installed_app_id });
+    console.log(info);
+    const today = new Date()
+    cloneEnergyCell(installed_app_id, today.yyyymmdd(), (cloneCellToday) => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      cloneEnergyCell(installed_app_id, tomorrow.yyyymmdd(), (cloneCellTomorrow) => {
+        const nano_grid_settings_cell_id = installedApp.cell_data.find(data => data.role_id === 'nanogrid').cell_id;
+        const nanoGridSettingsCellId = base64.bytesToBase64(nano_grid_settings_cell_id[0]);
+        const transactionsCellId = cloneCellToday;
+        const tomorrowTransactionsCellId =cloneCellTomorrow;
+        const billing_cell_id = installedApp.cell_data.find(data => data.role_id === 'billing').cell_id;
+        const billingCellId = base64.bytesToBase64(billing_cell_id[0]);
+        const ioenFuelCellId = 'ioenFuelCellId';
+        const protocolAppInfo = {
+          installedAppId: installed_app_id,
+          nanoGridSettingsCellId,
+          ioenFuelCellId,
+          billingCellId,
+          transactionsCellId,
+          tomorrowTransactionsCellId
+        }
+        console.log(protocolAppInfo);
+        callback(agent, protocolAppInfo);
+      });
+    })
   } catch (e) {
     console.log(e);
   }
     
+}
+
+export const cloneEnergyCell = (app_id, network_seed, callback) => {
+  const createCloneTomorrow = {
+    app_id,
+    role_id: 'energy',
+    modifiers: {
+      network_seed,
+    },
+  };
+  appClient.createCloneCell(createCloneTomorrow)
+  .then(clonedCell => {
+    console.log('clonedCell' + network_seed);
+    console.log(base64.bytesToBase64(clonedCell.cell_id[0]));
+    callback(base64.bytesToBase64(clonedCell.cell_id[0]));
+  })
 }
 
 export const createNewNanoGrid = (nanoGrid, agent_key, protocolAppInfo, callback) => {
@@ -96,10 +133,11 @@ export const createEcoGridTransaction = async(payload, callback) => {
           provenance: cell_id[1]
       });
       const end = new Date();
-      console.log("Elapsed time createEcoGridTransaction " + (end.getTime() - start.getTime()) + " ms");
+      console.log('Elapsed time createEcoGridTransaction ' + (end.getTime() - start.getTime()) + ' ms');
       callback();
     } catch (error) {
       callback();
+      console.error(payload);
       console.error(error);
     }
 };
@@ -119,7 +157,7 @@ export const createRetailTransaction = async(payload, callback) => {
         provenance: cell_id[1]
       });
       const end = new Date();
-      console.log("Elapsed time createRetailTransaction " + (end.getTime() - start.getTime()) + " ms");
+      console.log('Elapsed time createRetailTransaction ' + (end.getTime() - start.getTime()) + ' ms');
       callback();
     } catch (error) {
       callback();

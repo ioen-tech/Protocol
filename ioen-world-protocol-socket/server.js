@@ -3,6 +3,7 @@ import {
     connectToHolochain,
     createNewAgent,
     createNewNanoGrid,
+    cloneEnergyCell,
     createEcoGridTransaction,
     createRetailTransaction } from "../ioen-protocol-client/index.js"
 
@@ -69,6 +70,14 @@ io.on('connection', (socket) => {
                 socket.emit('NanoGridCreated', actionHash);
             });
         });     
+    });
+
+    socket.on('CloneEnergyCell', (protocolAppInfo) => {        
+        cloneEnergyCell(protocolAppInfo.installedAppId, protocolAppInfo.networkSeed, (clonedEnergyCell) => {
+            protocolAppInfo.transactionsCellId = protocolAppInfo.tomorrowTransactionsCellId;
+            protocolAppInfo.tomorrowTransactionsCellId = clonedEnergyCell;
+            socket.emit('ClonedEnergyCell', protocolAppInfo);
+        });
     });
 
     socket.on('GetSupplyAgreements', (nanoGrid) => {        
