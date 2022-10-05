@@ -1,10 +1,16 @@
 # Backyard BBQ Protocol
 
+## Act1: Phil signs up Gary to ioen.world
+
 - Phil meets Gary at a backyard BBQ
 - Gary is the coach for the Donald Football Club
-- Phil & Gary talk about IOEN for Football Clubs
-- Gary scans Phil's QR Code and creates his profile on Holo Hosted app https://ioen.world: [avatar, handle]
+- Phil is president of a tennis club that is running IOEN
+- Phil tlls Gary that the footy club could earn money by running this thing IOEN and become an energy supplier to members
+- Phil shows Gary ioen.world for the tennis club on his mobile phone
+- Gary scans a QR Code from Phil's phone and creates his profile on Holo Hosted app https://ioen.world: [avatar, handle]
+- Phil gets some IOEN for making the referral
 - The next day Gary talks to the club and gets permission to use club member details in IOEN World
+- Gary asks Phil to help get him setup (or requests help from an IOEN developer or Redgrid to get setup)
 - Phil asks Gary to share his screen and teaches him how to update OSM with club member addresses
 - Phil asks Gary to navigate to https://ioen.world and create a new IOEN World
 - Gary uses the club member addresses & lat/long, colours, flag etc [more args] to create a new CityGen 3D model of the OSM data with IOEN NanoGrids for club members, Donald Football Club EcoGrid.
