@@ -1,5 +1,7 @@
 # Backyard BBQ Protocol
 
+## Act1: Phil signs up Gary to ioen.world
+
 - Phil meets Gary at a backyard BBQ
 - Gary is the coach for the Donald Football Club
 - Phil is president of a tennis club that is running IOEN
@@ -18,9 +20,28 @@
 - Gary's keen as so a few days later Phil is at Gary's house teaching him how to do a physical install of a NanoGrid.
 - When Gary shows the club leadership a few different models he built and how he can now show simulator data or real time data they agree to promote the Donald Football Club EcoGrid to the rest of the club through official channels.
 - Gary then does the physical install of the Donald Football Club NanoGrid teaching the process to Claire & Marie who between them went on to sign up most of the club.
+
+## Act2: Gary signs up members
+
 - Gary shares at the club meeting the IOEN explainer video and a QR screen for members to download and setup on the IOEN Donald FC Powershare mobile app.
 - Gary shares how much money will be earned for the club and how much money each person will (possibly) save by getting involved and how its heaps better than a normal energy retailer because value will stay local with this setup.
 - explainer video also shows members how any of them can become an energy supplier and sell energy to the community if they have a battery or solar system
+
+## Act3: A member sings up and shares a day in the life with redgrid.energy
+
+- Gary signs up Carol via the QR code
+- Carol is an energy supplier with a battery and solar and also an energy consumer
+- Carol downloads and installs the Donald FCC branded app and runs through the enrollment process
+- She enters credentials for her Solar and Battery
+- Her meter NMI is automatically obtained from her address
+- Carol registers herself as a supplier in the app along with terms of her supply agreement
+- Carol subscribes to suppliers of interest in her area
+- Carol registers her current retailer as a backup supplier
+- Carol tops up her redgrid.energy balance in the app
+- Carol is trading energy with her community.
+- We show through the app a timeline of transactions by Carol with her neighbors
+
+
 - Gary has a BBQ!
 
 
