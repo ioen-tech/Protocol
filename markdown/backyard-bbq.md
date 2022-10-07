@@ -18,8 +18,9 @@
 - Which opens the Holo Hosted WebGl build of the Town of Donald - Donald Football Club EcoGrid
 - Phil says to Gary "You can change a bunch of things like the list of members and the amount of solar/storage in the Eco Grid if you want to. Pretty fun actually, but first let's run it connected to the IOEN Protocol and check out the simulator stats for the club and a few of it's members", looks a bit like [dashboard](https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/demo-3/dashboards/analytics) 
 - Gary's keen as so a few days later Phil is at Gary's house teaching him how to do a physical install of a NanoGrid.
-- When Gary shows the club leadership a few different models he built and how he can now show simulator data or real time data they agree to promote the Donald Football Club EcoGrid to the rest of the club through official channels.
+- When Gary shows the club leadership the graph of todays solar vs coal energy and the path to get to complete energy independence they agree to promote the Donald Football Club EcoGrid to the rest of the club through official channels.
 - Gary then does the physical install of the Donald Football Club NanoGrid teaching the process to Claire & Marie who between them went on to sign up most of the club.
-- The club decided to include funding and scheduling the installation of solar & batteries in the value flows of the EcoGrid to improve the EcoGrid.
+- The club decided to include funding and scheduling the installation of solar & batteries in the value flows of the EcoGrid to improve the EcoGrid and get to complete energy independence.
+- Gary's got some capital for investing and sets up Rain Protocol Tokens to fund 20 installs each with their own arrangements for how energy is paid for.
 - Gary has a BBQ!
 - Luke from Esoteric is at the BBQ ....

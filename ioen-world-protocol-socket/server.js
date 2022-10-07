@@ -32,7 +32,8 @@ function processEcoGridTransactions() {
     const payload = ecoGridTransactionsToProcess.shift();
     if (payload == undefined) return;
     ecoGridTransactionInProgress = true;
-    createEcoGridTransaction(payload, () => {
+    createEcoGridTransaction(payload, (elapsedTime) => {
+        console.log('Elapsed time createEcoGridTransaction ' + elapsedTime + ' ms');
         ecoGridTransactionInProgress = false;
     });
 };
@@ -110,6 +111,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('AddRetailTransactionToProcessingList', (transaction) => {
+        console.log(transaction);
         retailTransactionsToProcess.push(transaction);
     });
 

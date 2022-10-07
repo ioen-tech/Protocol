@@ -129,15 +129,13 @@ export const createEcoGridTransaction = async(payload, callback) => {
           cell_id,
           zome_name: 'transactions',
           fn_name: 'create_eco_grid_transaction',
-          payload,
+          payload,  
           provenance: cell_id[1]
       });
       const end = new Date();
-      console.log('Elapsed time createEcoGridTransaction ' + (end.getTime() - start.getTime()) + ' ms');
-      callback();
+      callback(end.getTime() - start.getTime());
     } catch (error) {
       callback();
-      console.error(payload);
       console.error(error);
     }
 };
