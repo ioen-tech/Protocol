@@ -34,13 +34,12 @@ Date.prototype.yyyymmdd = function() {
 export const createNewAgent = async(installed_app_id, callback) => {
   try {
     const agent_key = await adminClient.generateAgentPubKey();
-    console.log(agent_key);
+    // console.log(agent_key);
     const base64AgentPubKey = base64.bytesToBase64(agent_key);
     const agent = {
       agentPubKey: base64AgentPubKey,
       installedAppId: installed_app_id
     }
-    console.log(agent);
     const installPath = path.resolve(__dirname, 'ioen-protocol.happ');
     const installedApp = await adminClient.installAppBundle({
       path: installPath,
@@ -48,38 +47,37 @@ export const createNewAgent = async(installed_app_id, callback) => {
       installed_app_id,
       membrane_proofs: {},
     });
-    console.log(installedApp);
+    // console.log(installedApp);
     await adminClient.enableApp({ installed_app_id });
     const info = await appClient.appInfo({ installed_app_id });
-    console.log(info);
+    // console.log(info);
     const today = new Date()
     cloneEnergyCell(installed_app_id, today.yyyymmdd(), (cloneCellToday) => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      cloneEnergyCell(installed_app_id, tomorrow.yyyymmdd(), (cloneCellTomorrow) => {
-        const nano_grid_settings_cell_id = installedApp.cell_data.find(data => data.role_id === 'nanogrid').cell_id;
-        const nanoGridSettingsCellId = base64.bytesToBase64(nano_grid_settings_cell_id[0]);
-        const transactionsCellId = cloneCellToday;
-        const tomorrowTransactionsCellId =cloneCellTomorrow;
-        const billing_cell_id = installedApp.cell_data.find(data => data.role_id === 'billing').cell_id;
-        const billingCellId = base64.bytesToBase64(billing_cell_id[0]);
-        const ioenFuelCellId = 'ioenFuelCellId';
-        const protocolAppInfo = {
-          installedAppId: installed_app_id,
-          nanoGridSettingsCellId,
-          ioenFuelCellId,
-          billingCellId,
-          transactionsCellId,
-          tomorrowTransactionsCellId
-        }
-        console.log(protocolAppInfo);
-        callback(agent, protocolAppInfo);
-      });
-    })
+      const nano_grid_settings_cell_id = installedApp.cell_data.find(data => data.role_id === 'nanogrid').cell_id;
+      const nanoGridSettingsCellId = base64.bytesToBase64(nano_grid_settings_cell_id[0]);
+      const transactionsCellId = cloneCellToday;
+      const tomorrowTransactionsCellId =  '';
+      const billing_cell_id = installedApp.cell_data.find(data => data.role_id === 'billing').cell_id;
+      const billingCellId = base64.bytesToBase64(billing_cell_id[0]);
+      const ioenFuelCellId = 'ioenFuelCellId';
+      const protocolAppInfo = {
+        installedAppId: installed_app_id,
+        nanoGridSettingsCellId,
+        ioenFuelCellId,
+        billingCellId,
+        transactionsCellId,
+        tomorrowTransactionsCellId
+      }
+      console.log(installed_app_id);
+      console.log(base64AgentPubKey);
+      console.log(protocolAppInfo);
+      console.log("");
+      callback(agent, protocolAppInfo);
+    });
   } catch (e) {
     console.log(e);
+    console.log("createNewAgent " + installed_app_id);
   }
-    
 }
 
 export const cloneEnergyCell = (app_id, network_seed, callback) => {
@@ -92,8 +90,6 @@ export const cloneEnergyCell = (app_id, network_seed, callback) => {
   };
   appClient.createCloneCell(createCloneTomorrow)
   .then(clonedCell => {
-    console.log('clonedCell' + network_seed);
-    console.log(base64.bytesToBase64(clonedCell.cell_id[0]));
     callback(base64.bytesToBase64(clonedCell.cell_id[0]));
   })
 }
@@ -119,6 +115,7 @@ export const createNewNanoGrid = (nanoGrid, agent_key, protocolAppInfo, callback
 
 export const createEcoGridTransaction = async(payload, callback) => {
     const start = new Date();
+    const transactionsCellId = payload.transactionsCellId;
     try {
       const cell_id = [base64.base64ToBytes(payload.transactionsCellId), base64.base64ToBytes(payload.consumerNanoGrid)];
       payload.consumerNanoGrid = base64.base64ToBytes(payload.consumerNanoGrid);
@@ -137,11 +134,15 @@ export const createEcoGridTransaction = async(payload, callback) => {
     } catch (error) {
       callback();
       console.error(error);
+      console.log("createEcoGridTransaction");
+      console.log(transactionsCellId);
+      console.log(base64.bytesToBase64(payload.consumerNanoGrid));
     }
 };
 
 export const createRetailTransaction = async(payload, callback) => {
     const start = new Date();
+    const transactionsCellId = payload.transactionsCellId;
     try {
       const cell_id = [base64.base64ToBytes(payload.transactionsCellId), base64.base64ToBytes(payload.consumerNanoGrid)];
       payload.consumerNanoGrid = base64.base64ToBytes(payload.consumerNanoGrid);
@@ -155,11 +156,13 @@ export const createRetailTransaction = async(payload, callback) => {
         provenance: cell_id[1]
       });
       const end = new Date();
-      console.log('Elapsed time createRetailTransaction ' + (end.getTime() - start.getTime()) + ' ms');
-      callback();
+      callback(end.getTime() - start.getTime());
     } catch (error) {
       callback();
       console.error(error);
+      console.log("createRetailTransaction");
+      console.log(transactionsCellId);
+      console.log(base64.bytesToBase64(payload.consumerNanoGrid));
     }
 };
 

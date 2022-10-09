@@ -44,7 +44,8 @@ function processRetailTransactions() {
     const payload = retailTransactionsToProcess.shift();
     if (payload == undefined) return;
     retailTransactionInProgress = true;
-    createRetailTransaction(payload, () => {
+    createRetailTransaction(payload, (elapsedTime) => {
+        console.log('Elapsed time createRetailTransaction ' + elapsedTime + ' ms');
         retailTransactionInProgress = false;
     });
 }
@@ -73,10 +74,10 @@ io.on('connection', (socket) => {
         });     
     });
 
-    socket.on('CloneEnergyCell', (protocolAppInfo) => {        
+    socket.on('CloneEnergyCell', (protocolAppInfo) => {    
         cloneEnergyCell(protocolAppInfo.installedAppId, protocolAppInfo.networkSeed, (clonedEnergyCell) => {
-            protocolAppInfo.transactionsCellId = protocolAppInfo.tomorrowTransactionsCellId;
             protocolAppInfo.tomorrowTransactionsCellId = clonedEnergyCell;
+            console.log(protocolAppInfo);
             socket.emit('ClonedEnergyCell', protocolAppInfo);
         });
     });
@@ -87,31 +88,11 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.on('GetAppInfo', (nanoGrid) => {        
-    //     hcClient = socket
-    // socket
-    //   .appInfo({
-    //     installed_app_id: nanoGrid.nanoGridName,
-    //   })
-    //   .then(appInfo => {
-    //     console.log(appInfo)
-    //     profileCellId = appInfo.cell_data.find(data => data.role_id === 'ioen_profiles').cell_id
-    //     energyMonitorCellId = appInfo.cell_data.find(data => data.role_id === 'ioen_energy_monitor').cell_id
-    // socket.emit('AppInfo', protocolAppInfo);
-    });
-
-    // socket.on('GetRequiredEnergyFromSupplyAgreements', (nanoGrid, requiredEnergy, supplyAgreements) => {        
-    //     getRequiredEnergyFromSupplyAgreements(nanoGrid, requiredEnergy, supplyAgreements, (requiredEnergy) => {
-    //         socket.emit('SupplyAgreementsExecuted', requiredEnergy);
-    //     });
-    // });
-
     socket.on('AddEcoGridTransactionToProcessingList', (transaction) => {
         ecoGridTransactionsToProcess.push(transaction);
     });
 
     socket.on('AddRetailTransactionToProcessingList', (transaction) => {
-        console.log(transaction);
         retailTransactionsToProcess.push(transaction);
     });
 
