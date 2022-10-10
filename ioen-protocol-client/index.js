@@ -20,18 +20,7 @@ export const connectToHolochain = async() => {
   appClient = await AppWebsocket.connect(`ws://localhost:${appPort.port}`, TIMEOUT, signalCb);
 }
 
-Date.prototype.yyyymmdd = function() {
-  var mm = this.getMonth() + 1; // getMonth() is zero-based
-  var dd = this.getDate();
-
-  return [this.getFullYear(),
-          (mm>9 ? '' : '0') + mm,
-          (dd>9 ? '' : '0') + dd
-         ].join('');
-};
-
-
-export const createNewAgent = async(installed_app_id, callback) => {
+export const createNewAgent = async(installed_app_id, happNetworkSeed, dailyNetworkSeed, callback) => {
   try {
     const agent_key = await adminClient.generateAgentPubKey();
     // console.log(agent_key);
@@ -46,13 +35,13 @@ export const createNewAgent = async(installed_app_id, callback) => {
       agent_key,
       installed_app_id,
       membrane_proofs: {},
+      network_seed: happNetworkSeed
     });
     // console.log(installedApp);
     await adminClient.enableApp({ installed_app_id });
     const info = await appClient.appInfo({ installed_app_id });
     // console.log(info);
-    const today = new Date()
-    cloneEnergyCell(installed_app_id, today.yyyymmdd(), (cloneCellToday) => {
+    cloneEnergyCell(installed_app_id, happNetworkSeed + dailyNetworkSeed, (cloneCellToday) => {
       const nano_grid_settings_cell_id = installedApp.cell_data.find(data => data.role_id === 'nanogrid').cell_id;
       const nanoGridSettingsCellId = base64.bytesToBase64(nano_grid_settings_cell_id[0]);
       const transactionsCellId = cloneCellToday;
@@ -133,10 +122,10 @@ export const createEcoGridTransaction = async(payload, callback) => {
       callback(end.getTime() - start.getTime());
     } catch (error) {
       callback();
-      console.error(error);
-      console.log("createEcoGridTransaction");
-      console.log(transactionsCellId);
-      console.log(base64.bytesToBase64(payload.consumerNanoGrid));
+      // console.error(error);
+      // console.log("createEcoGridTransaction");
+      // console.log(transactionsCellId);
+      // console.log(base64.bytesToBase64(payload.consumerNanoGrid));
     }
 };
 
@@ -159,10 +148,10 @@ export const createRetailTransaction = async(payload, callback) => {
       callback(end.getTime() - start.getTime());
     } catch (error) {
       callback();
-      console.error(error);
-      console.log("createRetailTransaction");
-      console.log(transactionsCellId);
-      console.log(base64.bytesToBase64(payload.consumerNanoGrid));
+      // console.error(error);
+      // console.log("createRetailTransaction");
+      // console.log(transactionsCellId);
+      // console.log(base64.bytesToBase64(payload.consumerNanoGrid));
     }
 };
 

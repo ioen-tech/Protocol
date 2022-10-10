@@ -8,6 +8,17 @@ import { Server } from "socket.io";
 import * as fs from 'fs';
 import * as path from 'path';
 import { exec } from 'child_process';
+
+Date.prototype.yyyymmdd = function() {
+  var mm = this.getMonth() + 1; // getMonth() is zero-based
+  var dd = this.getDate();
+
+  return [this.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('');
+};
+
 exec('curl ip-adresim.app', function(error, stdout, stderr){
   if(error)
       return;
@@ -44,8 +55,9 @@ async function connect() {
     // console.log(err)
   }
   if (agentPubKey == '' || appInfo == '') {
+    const today = new Date();
     console.log('First time setup')
-    createNewAgent(nanoGridName, (agent, protocolAppInfo) => {
+    createNewAgent(nanoGridName, today.yyyymmdd(), (agent, protocolAppInfo) => {
       fs.writeFileSync(agentPubKeyFileName, agent.agentPubKey, {encoding:'utf8',flag:'w'});
       fs.writeFileSync(protocolAppInfoFileName, JSON.stringify(protocolAppInfo), {encoding:'utf8',flag:'w'});
       agentPubKey = agent.agentPubKey;

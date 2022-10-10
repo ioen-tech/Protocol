@@ -15,7 +15,7 @@
         Supplier->>Energy Supply DHT: Get Supply Agreement
         Supplier->>Energy Supply DHT: Link amount sold to Supply Agreement & Block
         Supplier->>Consumer: Amount supplied
-        Consumer->>Energy DHT: Record transaction
+        Consumer->>Energy Transactions DHT: Record transaction
       end
     end
 ```

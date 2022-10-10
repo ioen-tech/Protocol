@@ -57,15 +57,15 @@ io.on('connection', (socket) => {
     var cnt = 0;
     console.log('[' + (new Date()).toUTCString() + '] IOEN Protocol connecting with NanoGridName ' + socket.handshake.auth.id);	
 
-    socket.on('CreateNewRetailer', () => {        
-        createNewAgent('Redgrid Energy', (agent, protocolAppInfo) => {
+    socket.on('CreateNewRetailer', (retailer) => {        
+        createNewAgent(retailer.retailerName, retailer.happNetworkSeed, retailer.dailyNetworkSeed, (agent, protocolAppInfo) => {
             socket.emit('AgentPubKeyGenerated', agent);
             socket.emit('AppInfo', protocolAppInfo);
         });
     });         
 
     socket.on('CreateNewNanoGrid', (nanoGrid) => {
-        createNewAgent(nanoGrid.nanoGridName, (agent, protocolAppInfo) => {
+        createNewAgent(nanoGrid.nanoGridName, nanoGrid.happNetworkSeed, nanoGrid.dailyNetworkSeed, (agent, protocolAppInfo) => {
             socket.emit('AgentPubKeyGenerated', agent);
             socket.emit('AppInfo', protocolAppInfo);
             createNewNanoGrid(nanoGrid, agent.agentPubKey, protocolAppInfo, (actionHash) => {
@@ -75,8 +75,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('CloneEnergyCell', (protocolAppInfo) => {    
-        cloneEnergyCell(protocolAppInfo.installedAppId, protocolAppInfo.networkSeed, (clonedEnergyCell) => {
+        cloneEnergyCell(protocolAppInfo.installedAppId, protocolAppInfo.happNetworkSeed + protocolAppInfo.dailyNetworkSeed, (clonedEnergyCell) => {
             protocolAppInfo.tomorrowTransactionsCellId = clonedEnergyCell;
+            console.log('');
+            console.log('CloneEnergyCell');
             console.log(protocolAppInfo);
             socket.emit('ClonedEnergyCell', protocolAppInfo);
         });
@@ -93,6 +95,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('AddRetailTransactionToProcessingList', (transaction) => {
+        console.log(transaction);
         retailTransactionsToProcess.push(transaction);
     });
 
