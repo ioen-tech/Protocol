@@ -17,24 +17,22 @@ const io = new Server(8080, { //8124 is the local port we are binding the pingpo
 
 console.log('Starting IOEN Protocol Socket SQLLite');
 
+let ioenProtocolDb = new SQLite3.Database(`./ioen-protocol${nanoGrid.happNetworkSeed}.db`, (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the chinook database.');
+});
+let db = new sqlite3.Database(`./energy_logger/energy_logger${nanoGrid.dailyNetworkSeed}.db`, (err) => {
+  if (err) {
+    console.error(err.message);
+  }
+  console.log('Connected to the chinook database.');
+});
+
 io.on('connection', (socket) => {
   var cnt = 0;
   console.log('[' + (new Date()).toUTCString() + '] IOEN Protocol connecting with NanoGridName ' + socket.handshake.auth.id);	
-
-  socket.on('ConnectToSqlLite', (nanoGrid) => {
-    let ioenProtocolDb = new SQLite3.Database(`./ioen-protocol${nanoGrid.happNetworkSeed}.db`, (err) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log('Connected to the chinook database.');
-    });
-    let db = new sqlite3.Database(`./energy_logger/energy_logger${nanoGrid.dailyNetworkSeed}.db`, (err) => {
-      if (err) {
-        console.error(err.message);
-      }
-      console.log('Connected to the chinook database.');
-    });
-  });
 
   socket.on('CreateNewRetailer', (retailer) => {        
       createNewAgent(retailer.retailerName, retailer.happNetworkSeed, retailer.dailyNetworkSeed, (agent, protocolAppInfo) => {
