@@ -13,4 +13,4 @@ chrono = { version = "0.4.22", default-features = false, features = ["clock", "s
 derive_more = "0"
 charges_integrity = { path = "../../integrity_zomes/charges_integrity" }
 
-hdk = "0.0.154"
+hdk = "0.0.155"

@@ -1,0 +1,34 @@
+/* ℹ️ This styles extends the existing layout package's styles for handling cases that aren't related to layouts package */
+
+/*
+  ℹ️ When we use v-layout as immediate first child of `.page-content-container`, it adds display:flex and page doesn't get contained height
+*/
+// .layout-wrapper.layout-nav-type-vertical {
+//   &.layout-content-height-fixed {
+//     .page-content-container {
+//       > .v-layout:first-child > :not(.v-navigation-drawer):first-child {
+//         flex-grow: 1;
+//         block-size: 100%;
+//       }
+//     }
+//   }
+// }
+.layout-wrapper.layout-nav-type-vertical {
+  &.layout-content-height-fixed {
+    .page-content-container {
+      > .v-layout:first-child {
+        overflow: hidden;
+        min-block-size: 100%;
+
+        > .v-main {
+          // overflow-y: auto;
+
+          .v-main__wrap > :first-child {
+            block-size: 100%;
+            overflow-y: auto;
+          }
+        }
+      }
+    }
+  }
+}

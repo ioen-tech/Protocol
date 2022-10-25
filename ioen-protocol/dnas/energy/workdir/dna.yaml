@@ -6,13 +6,13 @@ integrity:
   properties: ~
   origin_time: 2022-09-06T00:35:29.554Z
   zomes:
-    - name: transactions_integrity
-      bundled: ../../../target/wasm32-unknown-unknown/release/transactions_integrity.wasm
+    - name: logger_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/logger_integrity.wasm
 
 coordinator:
   zomes:
-    - name: transactions
-      bundled: ../../../target/wasm32-unknown-unknown/release/transactions.wasm
+    - name: logger
+      bundled: ../../../target/wasm32-unknown-unknown/release/logger.wasm
       dependencies:
-        - name: transactions_integrity
-
+        - name: logger_integrity
+        

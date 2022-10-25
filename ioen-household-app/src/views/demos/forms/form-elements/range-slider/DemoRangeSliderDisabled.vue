@@ -1,0 +1,15 @@
+<script setup>
+const slidersValues = ref([
+  30,
+  60
+])
+</script>
+
+<template>
+  <VRangeSlider
+    v-model="slidersValues"
+    disabled
+    value="30"
+    label="Disabled"
+  />
+</template>

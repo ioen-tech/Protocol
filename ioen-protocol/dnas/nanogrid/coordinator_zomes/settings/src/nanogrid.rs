@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use settings_integrity::Nanogrid;
+use settings_integrity::SupplyAgreement;
 use settings_integrity::EntryTypes;
 
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
@@ -30,6 +31,18 @@ pub fn create_nanogrid(nanogrid: Nanogrid) -> ExternResult<ActionHash> {
   create_entry(&EntryTypes::Nanogrid(nanogrid.clone()))
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SupplyAgreementInput {
+  nano_grid_action_hash: ActionHash,
+  supply_agreement: SupplyAgreement
+}
+
+#[hdk_extern]
+pub fn create_supply_agreement(input: SupplyAgreementInput) -> ExternResult<ActionHash> {
+  create_entry(&EntryTypes::SupplyAgreement(input.supply_agreement.clone()))
+  // link to input.nano_grid_action_hash
+
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UpdateNanogridInput {

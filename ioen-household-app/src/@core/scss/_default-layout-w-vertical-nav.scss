@@ -1,0 +1,66 @@
+@use "@configured-variables" as variables;
+@use "./placeholders";
+@use "vuetify/lib/styles/tools/_elevation" as mixins_elevation;
+@use "misc";
+
+$header: ".layout-navbar";
+
+@if variables.$layout-vertical-nav-navbar-is-contained {
+  $header: ".layout-navbar .navbar-content-container";
+}
+
+.layout-wrapper.layout-nav-type-vertical {
+  // 👉 Layout Navbar
+  // Add transition
+  #{$header} {
+    transition: padding 0.2s ease, background-color 0.18s ease;
+  }
+
+  // If navbar is contained => Add border radius to header
+  @if variables.$layout-vertical-nav-navbar-is-contained {
+    #{$header} {
+      border-radius: 0 0 variables.$default-layout-with-vertical-nav-navbar-footer-roundness variables.$default-layout-with-vertical-nav-navbar-footer-roundness;
+    }
+  }
+
+  // Scrolled styles for sticky navbar
+  @at-root {
+    /* ℹ️ This html selector with not selector is required when:
+        dialog is opened and window don't have any scroll. This removes window-scrolled class from layout and out style broke
+    */
+    html.v-overlay-scroll-blocked:not([style*="--v-body-scroll-y:0px;"]) .layout-navbar-sticky,
+    &.window-scrolled.layout-navbar-sticky {
+
+      #{$header} {
+        @extend %default-layout-vertical-nav-scrolled-sticky-nav;
+      }
+
+      .navbar-blur#{$header} {
+        @extend %blurry-bg;
+      }
+    }
+  }
+
+  // 👉 Layout footer
+  .layout-footer {
+    $ele-layout-footer: &;
+
+    .footer-content-container {
+      border-radius: variables.$default-layout-with-vertical-nav-navbar-footer-roundness variables.$default-layout-with-vertical-nav-navbar-footer-roundness 0 0;
+
+      // Sticky footer
+      @at-root {
+        // ℹ️ .layout-footer-sticky#{$ele-layout-footer} => .layout-footer-sticky.layout-wrapper.layout-nav-type-vertical .layout-footer
+        .layout-footer-sticky#{$ele-layout-footer} {
+          .footer-content-container {
+            background-color: rgb(var(--v-theme-surface));
+            padding-block: 0;
+            padding-inline: 1.2rem;
+
+            @include mixins_elevation.elevation(3);
+          }
+        }
+      }
+    }
+  }
+}

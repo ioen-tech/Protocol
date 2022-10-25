@@ -102,9 +102,32 @@ export const createNewNanoGrid = (nanoGrid, agent_key, protocolAppInfo, callback
   });
 };
 
+export const createSupplyAgreements = (nanoGridSupplyAgreements, callback) => {
+  const agentPubKey = base64.base64ToBytes(nanoGridSupplyAgreements.agentPubKey);
+  const nanoGridActionHash = base64.base64ToBytes(nanoGridSupplyAgreements.nanoGridActionHash);
+  const cell_id = [base64.base64ToBytes(nanoGridSupplyAgreements.nanoGridSettingsCellId), agentPubKey];
+
+  supplyAgreements.forEach(supplyAgreement => {
+    supplyAgreement.supplier = base64.base64ToBytes(supplyAgreement.consumerNanoGrid);
+    appClient.callZome({
+      cap_secret: null,
+      cell_id,
+      zome_name: 'settings',
+      fn_name: 'create_supply_agreement',
+      payload: supplyAgreement,
+      provenance: agentPubKey
+    })
+    .then(actionHash => {
+      callback(base64.bytesToBase64(actionHash));
+    })
+    .catch(e => {
+      console.log(e);
+    });
+  });
+};
+
 export const createEcoGridTransaction = async(payload, callback) => {
     const start = new Date();
-    const transactionsCellId = payload.transactionsCellId;
     try {
       const cell_id = [base64.base64ToBytes(payload.transactionsCellId), base64.base64ToBytes(payload.consumerNanoGrid)];
       payload.consumerNanoGrid = base64.base64ToBytes(payload.consumerNanoGrid);

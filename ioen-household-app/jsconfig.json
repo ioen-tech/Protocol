@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@axios": [
+        "src/plugins/axios"
+      ],
+      "@core": [
+        "src/@core"
+      ],
+      "@core/*": [
+        "src/@core/*"
+      ],
+      "@layouts": [
+        "src/@layouts"
+      ],
+      "@layouts/*": [
+        "src/@layouts/*"
+      ],
+      "@themeConfig": [
+        "themeConfig.ts"
+      ],
+      "@validators": [
+        "src/@core/utils/validators"
+      ]
+    },
+    "target": "esnext",
+    "types": [
+      "vite/client",
+      "vite-plugin-pages/client",
+      "vite-plugin-vue-layouts/client"
+    ]
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "vite.config.*",
+    "src/**/*",
+    "src/**/*.vue",
+    "themeConfig.ts"
+  ]
+}

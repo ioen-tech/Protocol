@@ -1,0 +1,12 @@
+@use "@configured-variables" as variables;
+@use "misc";
+
+%default-layout-vertical-nav-scrolled-sticky-nav {
+  background-color: rgb(var(--v-theme-surface));
+  box-shadow: variables.$vertical-nav-navbar-shadow;
+
+  // If navbar is contained => Squeeze navbar content on scroll
+  @if variables.$layout-vertical-nav-navbar-is-contained {
+    padding-inline: 1.2rem;
+  }
+}

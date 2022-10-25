@@ -1,0 +1,152 @@
+/*
+  TODO: Add docs on when to use placeholder vs when to use SASS variable
+
+  Placeholder
+    - When we want to keep customization to our self between templates use it
+
+  Variables
+    - When we want to allow customization from both user and our side
+    - You can also use variable for consistency (e.g. mx 1 rem should be applied to both vertical nav items and vertical nav header)
+*/
+@use "sass:map";
+
+// @forward "@layouts/styles/variables";
+@use "utils";
+
+// 👉 Default layout
+
+$navbar-high-emphasis-text: true !default;
+
+@forward "@layouts/styles/variables" with (
+  $layout-vertical-nav-collapsed-width: 68px !default,
+);
+@use "@layouts/styles/variables" as *;
+
+$css-vars: (
+  /*
+    - Skins
+      - CSS var
+        - Theme
+  */
+  "default": (
+    "--v-theme-background": (
+      "light": (244 ,245, 250),
+      "dark": (40 ,36, 61),
+    ),
+    "--v-theme-surface": (
+      "light": (255, 255, 255),
+      "dark": (49, 45, 75),
+    ),
+  ),
+  "bordered": (
+    "--v-theme-background": (
+      "light": (255 ,255, 255),
+      "dark": (49, 45, 75),
+    ),
+    "--v-theme-surface": (
+      "light": (255, 255, 255),
+      "dark": (49, 45, 75),
+    ),
+  ),
+) !default;
+$theme-colors-name: (
+  "primary",
+  "secondary",
+  "error",
+  "info",
+  "success",
+  "warning"
+) !default;
+
+// 👉 Default layout with vertical nav
+
+$default-layout-with-vertical-nav-navbar-footer-roundness: 10px !default;
+
+// 👉 Vertical nav
+$vertical-nav-background-color-rgb: var(--v-theme-background) !default;
+$vertical-nav-background-color: rgb(#{$vertical-nav-background-color-rgb}) !default;
+
+// ℹ️ This is used to keep consistency between nav items and nav header left & right margin
+// This is used by nav items & nav header
+$vertical-nav-horizontal-spacing: 0 1.125rem !default;
+$vertical-nav-horizontal-padding: 1.375rem 1rem !default;
+
+/*
+  ℹ️ We created this SCSS var to extract the start padding
+  Docs: https://sass-lang.com/documentation/modules/string
+  $vertical-nav-horizontal-padding => 0 8px;
+  string.index(#{$vertical-nav-horizontal-padding}, " ") + 1 => 2
+    string.index(#{$vertical-nav-horizontal-padding}, " ") => 1
+  string.slice(0 8px, 2, -1) => 8px => $card-actions-padding-x
+*/
+$vertical-nav-horizontal-padding-start: utils.get-first-value($vertical-nav-horizontal-padding);
+
+// Vertical nav header height. Mostly we will align it with navbar height;
+$vertical-nav-header-height: $layout-vertical-nav-navbar-height !default;
+$vertical-nav-navbar-shadow: 0 4px 8px -4px rgb(94 86 105 / 42%);
+
+// Vertical nav header padding
+$vertical-nav-header-padding: 1rem 0.25rem 1rem $vertical-nav-horizontal-padding-start !default;
+$vertical-nav-header-inline-spacing: $vertical-nav-horizontal-spacing !default;
+
+// Move logo when vertical nav is mini (collapsed but not hovered)
+$vertical-nav-header-logo-translate-x-when-vertical-nav-mini: -4px;
+
+// Space between logo and title
+$vertical-nav-header-logo-title-spacing: 0.9rem !default;
+
+// Section title margin top (when its not first child)
+$vertical-nav-section-title-mt: 1.5rem !default;
+
+// Section title margin bottom
+$vertical-nav-section-title-mb: 0.5rem !default;
+
+// Vertical nav icons
+$vertical-nav-items-icon-size: 1.5rem;
+$vertical-nav-items-nested-icon-size: 0.9rem;
+$vertical-nav-items-icon-margin-inline-end: 0.625rem;
+
+// Transition duration for nav group arrow
+$vertical-nav-nav-group-arrow-transition-duration: 0.15s !default;
+
+// Timing function for nav group arrow
+$vertical-nav-nav-group-arrow-transition-timing-function: ease-in-out !default;
+
+// 👉 Horizontal nav
+
+/*
+    ❗ Heads up
+    ==================
+    Here we assume we will always use shorthand property which will apply same padding on four side
+    This is because this have been used as value of top property by `.popper-content`
+*/
+$horizontal-nav-padding: 0.6875rem !default;
+
+// Horizontal nav icons
+$horizontal-nav-items-icon-size: 1.5rem;
+$horizontal-nav-third-level-icon-size: 0.9rem;
+$horizontal-nav-items-icon-margin-inline-end: 0.625rem;
+
+// ℹ️ We used SCSS variable because we want to allow users to update max height of popper content
+// 120px is combined height of navbar & horizontal nav
+$horizontal-nav-popper-content-max-height: calc((var(--vh, 1vh) * 100) - 120px - 4rem) !default;
+
+// ℹ️ This variable is used for horizontal nav popper content's `margin-top` and "The bridge"'s height. We need to sync both values.
+$horizontal-nav-popper-content-top: calc($horizontal-nav-padding + 0.375rem);
+
+// 👉 Plugins
+
+$plugin-ps-thumb-y-dark: rgba(var(--v-theme-surface-variant), 0.35);
+
+// 👉 Custom Variables
+$avatar-font-sizes: () !default;
+$avatar-font-sizes: map.deep-merge(
+  (
+    "x-small":12,
+    "small":14,
+    "default":18,
+    "large":20,
+    "x-large":24
+  ),
+  $avatar-font-sizes
+);

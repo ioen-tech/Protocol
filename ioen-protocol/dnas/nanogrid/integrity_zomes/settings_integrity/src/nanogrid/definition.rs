@@ -10,5 +10,5 @@ use hdi::prelude::*;
 pub struct Nanogrid {
   pub nano_grid_name: String,
   pub number_of_solar_panels: u32,
-  pub storage_capacity: u32,
+  pub storage_capacity: f32,
 }
