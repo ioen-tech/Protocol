@@ -11,7 +11,7 @@ use hdi::prelude::*;
 #[serde(rename_all = "camelCase")]
 pub struct RetailConsumerBlock {
   pub supply_time: f64,
-  pub consumer_nano_grid: AgentPubKey,
+  pub consumer: AgentPubKey,
   pub amount_supplied: f32,
   pub tariff: f32,
 }
