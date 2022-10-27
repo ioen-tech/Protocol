@@ -1,6 +1,41 @@
 # Backyard BBQ Protocol
 
-## Act1: Phil signs up Gary to ioen.world
+## John enrolls Alice at the BBQ
+
+- John meets Alice at a backyard BBQ
+- John explains how he uses this thing redgrid.energy that;
+  - saves him money
+  - allows him to share, trade and keep energy $ within his community
+  - allows him to provide extra dollars to his local footy club which has massive solar that's not used in weekdays so is essentially his retailer selling him excess energy.
+ 
+- John shows alice the app on his phone which has:
+  - a visual of what his costs are now vs what his costs where with only his retailer
+  - a visual of the local friends and connections he is trading with
+  - a visual that shows how much the footy club has accrued
+  - a visual that shows the IOEN crypto that John has acrued
+ - Alice is interested and John mentions that all that is required is a small box (nanogrid) device which is free and easy to install.
+ - John mentions he's more than happy to help Alice get setup and take her through the install and actually by doing so John says he will earn a reward of this new clean energy currency called IOEN.
+ - they agree to catchup tomorrow so John can do the install.
+
+## The next day
+
+- John drops by the Footy club and picks up a nanogrid and then heads to alices place. He scans a QR code on that device through his app
+- John meets Alice and brings up the QR code on his phone and Alice scans it.
+- Alice enrolls with her details
+- John helps her with getting her smart meter and solar enrolled
+
+
+## Alice begins saving money
+
+- Alice is setup and trading with others in Johns social group.
+- The footy club earns tx revenue from Alices usage (as the supplier of the nanogrid)
+- John earns Tx revenue from Alices usage (from qr scanning the nanogrid)
+- Alice earns more from here solar and spends less on energy thanks to redgrid.energy
+
+## Alice goes to another BBQ and enrolls another person!
+
+
+
 
 - Phil meets Gary at a backyard BBQ
 - Gary is the coach for the Donald Football Club
