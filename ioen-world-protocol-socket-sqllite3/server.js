@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import sqlite3 from 'sqlite3';
 const SQLite3 = sqlite3.verbose();
+import { v4 as uuidv4 } from 'uuid';
 
 const io = new Server(8080, { //8124 is the local port we are binding the pingpong server to
   pingInterval: 30005,		//An interval how often a ping is sent
@@ -51,6 +52,13 @@ setInterval(processEcoGridTransactions, 10);
 let ioenProtocolDb = null;
 let energyLoggerDb = null; 
 
+ioenProtocolDb = new SQLite3.Database(`./CustomerData.db`, (err) => {
+    // ioenProtocolDb = new SQLite3.Database(`./ioen-protocol_${nanoGrid.happNetworkSeed}.db`, (err) => {
+        if (err) {
+        console.error(err.message);
+    }
+});
+
 function cloneEnergyLogger(happNetworkSeed, dailyNetworkSeed, callback) {
     energyLoggerDb = new sqlite3.Database(`./energy_logger/energy_logger_${happNetworkSeed}_${dailyNetworkSeed}.db`, (err) => {
         if (err) {
@@ -58,9 +66,9 @@ function cloneEnergyLogger(happNetworkSeed, dailyNetworkSeed, callback) {
         }
         console.log(`Connected to the ${happNetworkSeed}_${dailyNetworkSeed} energy logger.`);
         energyLoggerDb.serialize(() => {
-            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS eco_grid_consumer_blocks (eco_grid_consumer_block_id INTEGER PRIMARY KEY, consumer TEXT, supply_time INTEGER, consumer_required_amount REAL)');
-            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS eco_grid_supplier_blocks (eco_grid_suppplier_block_id INTEGER PRIMARY KEY, supplier TEXT, interval_time INTEGER, interval_supply_amount REAL)');
-            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS retail_consumer_blocks (retail_consumer_block_id INTEGER PRIMARY KEY, consumer TEXT, supply_time INTEGER, consumer_required_amount REAL)');
+            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS consumer_blocks (consumer_block_id TEXT PRIMARY KEY, consumer TEXT, supply_time INTEGER, required_amount REAL)');
+            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS supplier_blocks (suppplier_block_id TEXT PRIMARY KEY, supplier TEXT, interval_time INTEGER, supply_amount REAL)');
+            energyLoggerDb.run('CREATE TABLE IF NOT EXISTS retail_blocks (retail_block_id TEXT PRIMARY KEY, consumer TEXT, supply_time INTEGER, required_amount REAL)');
         });
         const protocolAppInfo = {
             installedAppId: happNetworkSeed,
@@ -85,28 +93,40 @@ io.on('connection', (socket) => {
   });
 
   socket.on('CreateNewNanoGrid', (nanoGrid) => {
-    ioenProtocolDb = new SQLite3.Database(`./ioen-protocol_${nanoGrid.happNetworkSeed}.db`, (err) => {
-        if (err) {
+    ioenProtocolDb = new SQLite3.Database(`./CustomerData.db`, (err) => {
+        // ioenProtocolDb = new SQLite3.Database(`./ioen-protocol_${nanoGrid.happNetworkSeed}.db`, (err) => {
+            if (err) {
             console.error(err.message);
         }
         console.log(`Connected to the ${nanoGrid.happNetworkSeed} database.`);
         ioenProtocolDb.serialize(() => {
-            ioenProtocolDb.run('CREATE TABLE IF NOT EXISTS nanogrids (nano_grid_id INTEGER PRIMARY KEY, nano_grid_name TEXT, number_of_solar_panels INTEGER, storage_capacity REAL)');
-            ioenProtocolDb.run(`INSERT INTO nanogrids (nano_grid_name, number_of_solar_panels, storage_capacity) VALUES(?, ?, ?)`, [nanoGrid.nanoGridName, nanoGrid.numberOfSolarPanels, nanoGrid.storageCapacity], function(err) {
+            ioenProtocolDb.run('CREATE TABLE IF NOT EXISTS nanogrids (nano_grid_id TEXT PRIMARY KEY, nano_grid_name TEXT, number_of_solar_panels INTEGER, storage_capacity REAL)');
+            ioenProtocolDb.run('CREATE TABLE IF NOT EXISTS supply_agreements (supply_agreement_id TEXT PRIMARY KEY, nano_grid_id INTEGER, supplier TEXT, tariff_ioen_fuel REAL, transaction_energy_limit REAL, credit_limit REAL)');
+            ioenProtocolDb.run(`INSERT INTO nanogrids (nano_grid_id, nano_grid_name, number_of_solar_panels, storage_capacity) VALUES(?, ?, ?, ?)`, [nanoGrid.nanoGridId, nanoGrid.nanoGridName, nanoGrid.numberOfSolarPanels, nanoGrid.storageCapacity], function(err) {
                 if (err) {
                   return console.log(err.message);
                 }
                 // get the last insert id
-                console.log(`A nanogrid has been inserted with nano_grid_id ${this.lastID}`);
+                console.log(`A nanogrid has been inserted with nano_grid_id ${nanoGrid.nanoGridId}`);
                 const agent = {
-                    agentPubKey: this.lastID,
+                    agentPubKey: nanoGrid.nanoGridId,
                     installedAppId: nanoGrid.nanoGridName
                 }
                 socket.emit('AgentPubKeyGenerated', agent);
-                socket.emit('NanoGridCreated', this.lastID);
+                socket.emit('NanoGridCreated', nanoGrid.nanoGridId);
+
+                nanoGrid.supplyAgreements.forEach(supplyAgreement => {
+                    ioenProtocolDb.run(`INSERT INTO supply_agreements (supply_agreement_id, nano_grid_id, supplier, tariff_ioen_fuel, transaction_energy_limit, credit_limit) VALUES(?, ?, ?, ?, ?, ?)`, [supplyAgreement.supplyAgreementId, agent.agentPubKey, supplyAgreement.supplier, supplyAgreement.tariffIoenFuel, supplyAgreement.transactionEnergyLimit, supplyAgreement.creditLimit], function(err) {
+                        if (err) {
+                        return console.log(err.message);
+                        }
+                        console.log(`supplyAgreement has been inserted for nano_grid_id ${agent.agentPubKey}`);
+                    });
+                });
               });
+            });
         });
-    });
+        
     cloneEnergyLogger(nanoGrid.happNetworkSeed, nanoGrid.dailyNetworkSeed, (protocolAppInfo) => {
         socket.emit('AppInfo', protocolAppInfo);
     });
@@ -131,13 +151,6 @@ io.on('connection', (socket) => {
     cloneEnergyLogger(protocolAppInfo.happNetworkSeed, protocolAppInfo.dailyNetworkSeed, (protocolAppInfo) => {
         socket.emit('ClonedEnergyCell', protocolAppInfo);
     });
-    //   cloneEnergyCell(protocolAppInfo.installedAppId, protocolAppInfo.happNetworkSeed + protocolAppInfo.dailyNetworkSeed, (clonedEnergyCell) => {
-    //       protocolAppInfo.tomorrowTransactionsCellId = clonedEnergyCell;
-    //       console.log('');
-    //       console.log('CloneEnergyCell');
-    //       console.log(protocolAppInfo);
-    //       socket.emit('ClonedEnergyCell', protocolAppInfo);
-    //   });
   });
 
   socket.on('GetSupplyAgreements', (nanoGrid) => {        
@@ -163,34 +176,6 @@ io.on('connection', (socket) => {
 });
 
 
-
-
-// const sqlite3 = require('sqlite3').verbose();
-// let ioenProtocolDb = new sqlite3.Database('./ioen-protocol.db', (err) => {
-//   if (err) {
-//     console.error(err.message);
-//   }
-//   console.log('Connected to the chinook database.');
+// energyLoggerDb.run('INSERT INTO consumer_blocks (consumer_block_id, consumer, supply_time, required_amount) VALUES(?, ?, ?, ?)', [uuidv4(), 'id', 111, 1.0], function(err) {
+//     console.log(err);
 // });
-// let db = new sqlite3.Database('./energy_logger/energy_logger20221022.db', (err) => {
-//   if (err) {
-//     console.error(err.message);
-//   }
-//   console.log('Connected to the chinook database.');
-// });
-
-// db.serialize(() => {
-//     db.run("CREATE TABLE lorem (info TEXT)");
-
-//     const stmt = db.prepare("INSERT INTO lorem VALUES (?)");
-//     for (let i = 0; i < 10; i++) {
-//         stmt.run("Ipsum " + i);
-//     }
-//     stmt.finalize();
-
-//     db.each("SELECT rowid AS id, info FROM lorem", (err, row) => {
-//         console.log(row.id + ": " + row.info);
-//     });
-// });
-
-// db.close();

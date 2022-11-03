@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "socket.io": "^4.5.3",
-    "sqlite3": "^5.1.2"
+    "sqlite3": "^5.1.2",
+    "uuid": "^9.0.0"
   }
 }

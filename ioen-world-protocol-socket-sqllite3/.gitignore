@@ -1,3 +1,4 @@
 node_modules/
 energy_logger/
 *.db
+*.db-journal
